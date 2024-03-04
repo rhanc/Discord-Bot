@@ -1,0 +1,1 @@
+const api = "https://discord.com/api/v{10}"
