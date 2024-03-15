@@ -1,9 +1,12 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
+const { Client, Collection, Events, IntentsBitField } = require('discord.js');
 const { token } = require('./config.json');
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [IntentsBitField.Flags.Guilds,
+	IntentsBitField.Flags.GuildMembers,
+	IntentsBitField.Flags.GuildMessages,
+	IntentsBitField.Flags.MessageContent], });
 
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
@@ -26,10 +29,27 @@ for (const folder of commandFolders) {
 client.once(Events.ClientReady, readyClient => {
 	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
-client.on(Events.MessageDelete,message => {
-	console.log(`Sent message ${message.content}`);
+
+client.on('messageCreate',(message)=>{
+	let content = message.content;
+	if(message.author.bot)
+	{
+		return;
+	}
+	else if(content.toLowerCase() == "help")
+	{
+		message.reply("Here are commands I can excuite:\n1: Return today's date.");
+	}
+	else if(content == "1")
+	{
+		message.reply(new Date().toDateString());
+	}
+	// else
+	// {
+	// 	
+	// }
 });
-client.on(Events.InteractionCreate, async interaction => {
+/*client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
 	const command = interaction.client.commands.get(interaction.commandName);
 
@@ -48,6 +68,7 @@ client.on(Events.InteractionCreate, async interaction => {
 			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
 		}
 	}
-});
+});*/
 
 client.login(token);
+
