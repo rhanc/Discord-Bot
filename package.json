@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "@xivapi/js": "^0.4.5",
+    "@xivapi/nodestone": "^0.2.7",
     "discord.js": "^14.12.1",
     "dotenv": "^16.4.5",
     "nodemon": "^3.1.0"
