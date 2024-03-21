@@ -73,7 +73,7 @@ client.on('messageCreate',async (message)=>{//Detects if the user creates and se
 		/*
 		Convert the message to lower case and see if it says help
 		*/
-		let cmds = "Here are commands I can excuite:\n1: Return today's date.";
+		let cmds = "Here are commands I can execute:\n1: Return today's date.";
 		cmds+= "\n2: Search for item";
 		cmds+= "\n3: Search for Achievements";
 		message.reply(cmds);
