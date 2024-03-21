@@ -49,12 +49,12 @@ client.on('interactionCreate',async (interaction)=>{//Detects if the user presse
 	if(hasRole)
 	{
 		await interaction.member.roles.remove(role);
-		await interaction.editReply('Role '+role+' has been deleted');
+		await interaction.editReply('Role '+role.name+' has been deleted');
 		return;
 	}
 
 	await interaction.member.roles.add(role);
-	await interaction.editReply('Role '+role+' has been added');
+	await interaction.editReply('Role '+role.name+' has been added');
 
 	} catch(error) {
 		console.log(error);
@@ -88,48 +88,55 @@ client.on('messageCreate',async (message)=>{//Detects if the user creates and se
 		Search(name,SearchType, content,message)
 	}
 	else if((content[0] -'0') == 2 && content.length <=2)
-	{
+	{//Check for an incomplete search
 		message.reply("You're searching for an item, but I don't know what to search for.");
 	}
 	else if(content.toLowerCase('help') && ((content[0] -'0')>=0 && (content[0] -'0') <=10) == false)
-	{
+	{//Check for an empty search
 		message.reply("Please either type \"help\" to get a list of commands or a number following a word");
 	}
 	else if(content[0] == "3" && content.length > 1)
-	{ 
+	{ //Show the user any achievements that match the search
 		let SearchType = "achievement";
 		Search(name,SearchType, content,message)
 	  
 	}
-	});
-	const getMembers = async () => {
-		//find the FC with its name and server
-		let res = await xiv.freecompany.search('My Fun FC', {server: 'Excalibur'})
-	  
-		//get the FC ID
-		let id = res.Results[0].ID
-	  
-		//get and return fc members
-		let fc = await xiv.freecompany.get('9231253336202687179', {data: FCM})
-		return fc.FreeCompanyMembers
-	  }
+	}); 
 	  async function Search(name,SearchType, content,message)
 	  {
+		/*
+		Search function that is used for option 2 and 3
+		*/
 		name = content.substring(2,content.length); 
 		name = name.trim();
 		console.log("Name: "+name+" Length: "+name.length);
+		console.log("-"+name+"-");
 		let response = await xiv.search(name, {snake_case: true})
 		let data = response["results"];
 		let results = "";
+		//For loop to show all results that match
 		for(let i = 0; i < response["results"].length; i++)
 		{
-
-			if(results.length < 4000&&data[i].name.toLowerCase().includes(name.toLowerCase()))
+			let DataType = data[i].url_type.toLowerCase()
+			let DataName = data[i].name.toLowerCase()
+			if(DataType == "action")
 			{
-				results+="ID: "+data[i].id+"\nName: "+data[i].name+"\nURL_Type: "+data[i].url_type
+				continue;
+			}
+			console.log('type: '+DataType)
+			
+			console.log('type: '+SearchType)
+			if(DataType == SearchType)
+			{
+				console.log('searching for: '+DataName)
+			console.log('type: '+DataType)
+			console.log('Data: '+name)
+			}
+			if(results.length < 1000&&DataName.includes(name.toLowerCase()) && SearchType.toLowerCase() == DataType)
+			{
+				results+="\nID: "+data[i].id+"\nName: "+data[i].name+"\nURL_Type: "+data[i].url_type
 				console.log((response["results"][i]));
-				console.log(response["results"][i].name);
-				break;
+				console.log(response["results"][i].name);  
 			}
 		}
 		if(results == "")//If results variable is empty, return error message
@@ -140,35 +147,28 @@ client.on('messageCreate',async (message)=>{//Detects if the user creates and se
 		{
 			message.reply(results);
 		} 
-	  }
-	//if(((content[0] -'0')>=0 && (content[0] -'0') <=10) == true && content.length <=2)
-	
-	// const getMembers = async () => {
-// 	//find the FC with its name and server
-// 	let res = await xiv.freecompany.search('My Fun FC', {server: 'Excalibur'})
-  
-// 	//get the FC ID
-// 	let id = res.Results[0].ID
-  
-// 	//get and return fc members
-// 	let fc = await xiv.freecompany.get('9231253336202687179', {data: FCM})
-// 	return fc.FreeCompanyMembers
-//   }
-
-//let response =  xiv.search('kote', {snake_case: true})
+	  }  
 client.on(Events.InteractionCreate, async interaction => {
-	if (!interaction.isChatInputCommand()) return;
-	const command = interaction.client.commands.get(interaction.commandName);
+	let command ;
+	if (interaction.isChatInputCommand()==false) 
+	{
+		return;
+	}
+	else
+	{
+		command = interaction.client.commands.get(interaction.commandName);
+	}
+	
 
 	if (!command) {
-		console.error(`No command matching ${interaction.commandName} was found.`);
+		console.log(interaction.commandName+" was not found"); 
 		return;
 	}
 
 	try {
 		await command.execute(interaction);
 	} catch (error) {
-		console.error(error);
+		console.log(error);
 		if (interaction.replied || interaction.deferred) {
 			await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
 		} else {
